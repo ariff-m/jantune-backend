@@ -1,5 +1,10 @@
 const { dbPool } = require('../config/database');
 
+const getAll = () => {
+  const SQLQuery = 'SELECT * FROM identification';
+  return dbPool.execute(SQLQuery);
+}
+
 const getAllIdentification = (userId) => {
   const SQLQuery = 'SELECT * FROM identification WHERE userId=?';
   return dbPool.execute(SQLQuery, [userId]);
@@ -62,6 +67,7 @@ const deleteIdentification = (userId, id) => {
 
 
 module.exports = {
+  getAll,
   getAllIdentification,
   getIdentification,
   createNewIdentification,
