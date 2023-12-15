@@ -1,5 +1,22 @@
 const UsersModel = require('../models/users');
 
+const getAll = async (req, res) => {
+    try {
+    const [data] = await UsersModel.getAll();
+
+    res.json({
+      message: 'get all identification success',
+      data
+    })
+
+  } catch (error) {
+    res.status(500).json({
+      message: 'Server Error',
+      serverMessage: error,
+    })
+  }
+}
+
 const getAllIdentification = async (req, res) => {
   const { userId } = req.params;
   try {
@@ -98,6 +115,7 @@ const deleteIdentification = async (req, res) => {
 }
 
 module.exports = {
+  getAll,
   getAllIdentification,
   getIdentification,
   createNewIdentification,
