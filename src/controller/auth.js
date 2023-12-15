@@ -1,8 +1,8 @@
 const { dbAuth, dbPool ,db} = require('../config/database');
 const bcrypt = require('bcrypt');
-const crypto = require('crypto');
-const multer = require('multer');
 const jwt = require('jsonwebtoken');
+const upload = require ('../middleware/multer');
+const verifyToken = require('../middleware/jwt')
 
 const JWT_SECRET = process.env.JWT_SECRET;
 console.log(JWT_SECRET);
@@ -10,36 +10,6 @@ console.log(JWT_SECRET);
 function generateToken(userId) {
     return jwt.sign({ userId }, JWT_SECRET, { expiresIn: '5m' });
 }
-
-const fileStorageEngine = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, './images');
-    },
-    filename: (req, file, cb) => {
-        cb(null, Date.now() + '..' + file.originalname);
-    },
-});
-
-const upload = multer({ storage: fileStorageEngine });
-
-function verifyToken(req, res, next) {
-    const token = req.header('Authorization');
-
-    if (!token) {
-        return res.status(401).send('Access denied. No token provided.');
-    }
-
-    jwt.verify(token, JWT_SECRET, (err, decoded) => {
-        if (err) {
-            console.error('Error verifying token:', err);
-            return res.status(401).send('Invalid token.');
-        }
-
-        req.userId = decoded.userId;
-        next();
-    });
-}
-
 const getAllUsers = ((req, res) => {
     dbAuth.query('SELECT name,email,id FROM users', (error, result) => {
         if (error) {
@@ -157,76 +127,6 @@ const deleteUser = (verifyToken,(req, res) => {
     });
 });
 
-const forgotPass = (verifyToken, async (req, res) => {
-    const email = req.body.email;
-
-    try {
-        const user = await getUserByEmail(email);
-
-        if (!user) {
-            return res.status(404).send('User not found');
-        }
-
-        // Gtoken digenerate
-        const token = crypto.randomBytes(20).toString('hex');
-
-        // update token ke database
-        dbAuth.query('UPDATE users SET reset_token = ? WHERE id = ?', [token, user.id], (error, result) => {
-            if (error) {
-                console.log(error);
-                return res.status(500).send('Internal Server Error');
-            }
-
-            // sending lokal dengan token
-            console.log('Reset Token:', token);
-            res.send('Password reset instructions simulated');
-        });
-    } catch (error) {
-        console.log(error);
-        res.status(500).send('Internal Server Error');
-    }
-});
-
-const resetPass = (verifyToken, async (req, res) => {
-    const token = req.params.token;
-    const newPassword = req.body.newPassword;
-
-    try {
-        const user = await getUserByResetToken(token);
-
-        if (!user) {
-            return res.status(400).send('Invalid or expired token');
-        }
-
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(newPassword, salt);
-
-        dbAuth.query('UPDATE users SET password = ?, reset_token = NULL WHERE id = ?', [hashedPassword, user.id], (error, result) => {
-            if (error) {
-                console.log(error);
-                res.status(500).send('Internal Server Error');
-            } else {
-                res.send('Password reset successfully');
-            }
-        });
-    } catch (error) {
-        console.log(error);
-        res.status(500).send('Internal Server Error');
-    }
-});
-
-async function getUserByResetToken(token) {
-    return new Promise((resolve, reject) => {
-        db.query('SELECT * FROM users WHERE reset_token = ?', token, (error, results) => {
-            if (error) {
-                reject(error);
-            } else {
-                resolve(results[0]);
-            }
-        });
-    });
-}
-
 const updateUser = (verifyToken, upload.single('image'), async (req, res) => {
     try {
         const userId = req.params.userId;
@@ -261,12 +161,12 @@ const updateUser = (verifyToken, upload.single('image'), async (req, res) => {
                 }
             });
         }
-
         // Handle phone number update
         if (phoneNumber) {
-            if (!/^\d+$/.test(phoneNumber)) {
-                return res.status(400).send('Invalid phone number. Only numeric characters are allowed.');
-            }
+            const phoneNumberRegex = /^[0-9\s()-]+$/;
+             if (!phoneNumberRegex.test(phoneNumber)) {
+                return res.status(400).send('Invalid phone number. Only numeric characters, spaces, hyphens, and parentheses are allowed.');
+                }
             dbAuth.query('UPDATE users SET phone_number = ? WHERE id = ?', [phoneNumber, userId], (error, result) => {
                 if (error) {
                     console.log(error);
@@ -274,7 +174,8 @@ const updateUser = (verifyToken, upload.single('image'), async (req, res) => {
                     return;
                 }
             });
-        }
+        }       
+
 
         res.send('Profile updated');
     } catch (error) {
@@ -337,10 +238,6 @@ async function getUserById(userId) {
     });
 }
 
-const protectedRoute = (verifyToken, (req, res) => {
-    // If the token is valid, this route handler will be executed
-    res.send('You have access to the protected route.');
-});
 
 module.exports = {
     getAllUsers,
@@ -349,9 +246,6 @@ module.exports = {
     login,
     deleteUser,
     deleteImage,
-    forgotPass,
-    resetPass,
     updateUser,
     deletePhone,
-    protectedRoute
 }
