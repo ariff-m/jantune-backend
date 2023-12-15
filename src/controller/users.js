@@ -1,12 +1,13 @@
 const UsersModel = require('../models/users');
 
 const getAllIdentification = async (req, res) => {
+  const { userId } = req.params;
   try {
-    const [data] = await UsersModel.getAllIdentification();
+    const [data] = await UsersModel.getAllIdentification(userId);
 
     res.json({
       message: 'get all identification success',
-      data: data
+      data
     })
 
   } catch (error) {
@@ -18,9 +19,9 @@ const getAllIdentification = async (req, res) => {
 }
 
 const getIdentification = async (req, res) => {
-  const {id} = req.params;
+  const { userId, id } = req.params;
   try {
-    const [data] = await UsersModel.getIdentification(id);
+    const [data] = await UsersModel.getIdentification(userId, id);
 
     res.json({
       message: 'get identification success',
@@ -39,7 +40,7 @@ const getIdentification = async (req, res) => {
 const createNewIdentification = async (req, res) => {
   const { body } = req;
 
-  if (!body.name || !body.date) {
+  if (!body.name || !body.userId) {
     return res.status(400).json({
       message: 'data tidak lengkap',
       data: null,
@@ -61,10 +62,10 @@ const createNewIdentification = async (req, res) => {
 }
 
 const updateIdentification = async (req, res) => {
-  const { id } = req.params;
+  const { userId, id } = req.params;
   const { body } = req;
   try {
-    await UsersModel.updateIdentification(body, id);
+    await UsersModel.updateIdentification(body, userId, id);
     res.json({
       message: 'update identification succes',
       data: {
@@ -81,9 +82,9 @@ const updateIdentification = async (req, res) => {
 }
 
 const deleteIdentification = async (req, res) => {
-  const { id } = req.params;
+  const { userId, id } = req.params;
   try {
-    await UsersModel.deleteIdentification(id);
+    await UsersModel.deleteIdentification(userId, id);
     res.json({
       message: 'delete identification success',
       data: null
