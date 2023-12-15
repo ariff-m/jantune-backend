@@ -1,4 +1,4 @@
-const { dbAuth } = require('../config/database');
+const { dbAuth, dbPool ,db} = require('../config/database');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const multer = require('multer');
@@ -66,10 +66,18 @@ const getUser = ((req, res)=> {
 const userRegister = (async (req, res) => {
     try {
         const existingUser = await getUserByEmail(req.body.email);
+        const emailRegex = /^[a-zA-Z0-9._-]+@gmail\.com$/; 
 
         if (existingUser) {
             res.status(400).send('Email is already registered');
-        } else {
+        } 
+        else if(!req.body.name || !req.body.email || !req.body.password){
+            res.status(400).send('Plese fill properly');
+        }
+        else if (!emailRegex.test(req.body.email)) {
+            res.status(400).send('Please provide a valid Gmail email address');
+        }
+        else {
             const salt = await bcrypt.genSalt(10);
             const hashedPassword = await bcrypt.hash(req.body.password, salt);
 
@@ -90,7 +98,7 @@ const userRegister = (async (req, res) => {
                 }
             });
         }
-    } catch (error) {
+    }  catch (error) {
         console.log(error);
         res.status(500).send('Internal Server Error');
     }
@@ -209,7 +217,7 @@ const resetPass = (verifyToken, async (req, res) => {
 
 async function getUserByResetToken(token) {
     return new Promise((resolve, reject) => {
-        dbAuth.query('SELECT * FROM users WHERE reset_token = ?', token, (error, results) => {
+        db.query('SELECT * FROM users WHERE reset_token = ?', token, (error, results) => {
             if (error) {
                 reject(error);
             } else {
