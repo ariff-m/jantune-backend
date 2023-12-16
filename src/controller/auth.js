@@ -1,11 +1,9 @@
-const { dbAuth, dbPool ,db} = require('../config/database');
+const { dbAuth } = require('../config/database');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const upload = require ('../middleware/multer');
-const verifyToken = require('../middleware/jwt')
 
 const JWT_SECRET = process.env.JWT_SECRET;
-console.log(JWT_SECRET);
 
 function generateToken(userId) {
     return jwt.sign({ userId }, JWT_SECRET, { expiresIn: '5m' });
@@ -112,7 +110,7 @@ const login = (async (req, res) => {
     });
 });
 
-const deleteUser = (verifyToken,(req, res) => {
+const deleteUser = ((req, res) => {
     const userId = req.params.userId;
 
     dbAuth.query('DELETE FROM users WHERE id = ?', userId, (error, result) => {
@@ -127,7 +125,7 @@ const deleteUser = (verifyToken,(req, res) => {
     });
 });
 
-const updateUser = (verifyToken, upload.single('image'), async (req, res) => {
+const updateUser = (async (req, res) => {
     try {
         const userId = req.params.userId;
         const user = await getUserById(userId);
@@ -184,7 +182,7 @@ const updateUser = (verifyToken, upload.single('image'), async (req, res) => {
     }
 });
 
-const deleteImage = (verifyToken, async (req, res) => {
+const deleteImage = (async (req, res) => {
     const userId = req.params.userId;
 
     // Verifikasi apakah user dengan ID tersebut ada
@@ -205,7 +203,7 @@ const deleteImage = (verifyToken, async (req, res) => {
     });
 });
 
-const deletePhone  = (verifyToken,async (req, res) => {
+const deletePhone  = (async (req, res) => {
     const userId = req.params.userId;
 
     // Verifikasi apakah user dengan ID tersebut ada
