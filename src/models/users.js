@@ -17,43 +17,32 @@ const getIdentification = (userId, id) => {
 
 const createNewIdentification = (body) => {
   const SQLQuery = `INSERT INTO identification 
-    (userId, name, date, time, age, sex, restingBP, cholesterol, fastingBS, maxHR, 
-    exerciseAngina, oldpeak, chestPainTypeASY, chestPainTypeATA, chestPainTypeNAP, 
-    chestPainTypeTA, restingEcgLVH, restingEcgNormal, restingEcgST, stSlopeDown, 
-    stSlopeFlat, stSlopeUp) 
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    (userId, name, date, time, age, sex, chestPainType, restingBP, cholesterol, fastingBS,
+    restingECG, maxHR, exerciseAngina, oldpeak, stSlope) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
   const values = [
-    body.userId, body.name, body.date, body.time, body.age, body.sex, body.restingBP,
-    body.cholesterol, body.fastingBS, body.maxHR, body.exerciseAngina, body.oldpeak,
-    body.chestPainTypeASY, body.chestPainTypeATA, body.chestPainTypeNAP, body.chestPainTypeTA,
-    body.restingEcgLVH, body.restingEcgNormal, body.restingEcgST, body.stSlopeDown,
-    body.stSlopeFlat, body.stSlopeUp
+    body.userId, body.name, body.date, body.time, body.age, body.sex, body.chestPainType,
+    body.restingBP, body.cholesterol, body.fastingBS, body.restingECG, body.maxHR,
+    body.exerciseAngina, body.oldpeak, body.stSlope
   ];
 
   return dbPool.execute(SQLQuery, values);
 }
 
-
 const updateIdentification = (body, userId, id) => {
   const SQLQuery = `UPDATE identification 
                     SET userId=?, name=?, date=?, time=?, 
-                    age=?, sex=?, restingBP=?, 
-                    cholesterol=?, fastingBS=?, maxHR=?,
-                    exerciseAngina=?, oldpeak=?, chestPainTypeASY=?, 
-                    chestPainTypeATA=?, chestPainTypeNAP=?, chestPainTypeTA=?, 
-                    restingEcgLVH=?, restingEcgNormal=?, restingEcgST=?, 
-                    stSlopeDown=?, stSlopeFlat=?, stSlopeUp=?
+                    age=?, sex=?, chestPainType=?, restingBP=?, 
+                    cholesterol=?, fastingBS=?, restingECG=?, 
+                    maxHR=?, exerciseAngina=?, oldpeak=?, stSlope=?
                     WHERE userId=? AND id=?`;
 
   const values = [
     body.userId, body.name, body.date, body.time,
-    body.age, body.sex, body.restingBP,
-    body.cholesterol, body.fastingBS, body.maxHR,
-    body.exerciseAngina, body.oldpeak, body.chestPainTypeASY,
-    body.chestPainTypeATA, body.chestPainTypeNAP, body.chestPainTypeTA,
-    body.restingEcgLVH, body.restingEcgNormal, body.restingEcgST,
-    body.stSlopeDown, body.stSlopeFlat, body.stSlopeUp,
+    body.age, body.sex, body.chestPainType, body.restingBP,
+    body.cholesterol, body.fastingBS, body.restingECG,
+    body.maxHR, body.exerciseAngina, body.oldpeak, body.stSlope,
     userId, id
   ];
 
@@ -64,7 +53,6 @@ const deleteIdentification = (userId, id) => {
   const SQLQuery = 'DELETE FROM identification WHERE userId=? AND id=?';
   return dbPool.execute(SQLQuery, [userId, id]);
 }
-
 
 module.exports = {
   getAll,
