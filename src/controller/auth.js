@@ -6,7 +6,7 @@ const path = require('path');
 const JWT_SECRET = process.env.JWT_SECRET;
 
 function generateToken(userId) {
-    return jwt.sign({ userId }, JWT_SECRET, { expiresIn: '5m' });
+    return jwt.sign({ userId }, JWT_SECRET, { expiresIn: '2h' });
 }
 const getAllUsers = ((req, res) => {
     dbAuth.query('SELECT name,email,id FROM users', (error, result) => {
@@ -53,7 +53,7 @@ const userRegister = (async (req, res) => {
                 name: req.body.name,
                 email: req.body.email,
                 password: hashedPassword,
-                phone_number: req.body.phone_number,
+                phoneNumber: req.body.phoneNumber,
             };
 
             dbAuth.query('INSERT INTO users SET ?', newUser, (error, result) => {
