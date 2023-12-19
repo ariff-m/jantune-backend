@@ -2,10 +2,10 @@ const multer = require ('multer');
 
 const fileStorageEngine = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, 'images');
+        cb(null, '/home/slashgb/Pictures/Screenshots');
     },
     filename: (req, file, cb) => {
-        cb(null, Date.now() + '..' + file.originalname);
+        cb(null,'..' + file.originalname);
     },
 });
 

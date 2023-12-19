@@ -2,7 +2,7 @@ const { dbAuth } = require('../config/database');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const upload = require ('../middleware/multer');
-
+const path = require('path');
 const JWT_SECRET = process.env.JWT_SECRET;
 
 function generateToken(userId) {
@@ -135,12 +135,19 @@ const updateUser = (async (req, res) => {
         }
 
         const name = req.body.name;
-        const phoneNumber = req.body.phone_number;
+        const phoneNumber = req.body.phoneNumber;
 
         // Handle image uploadd
         if (req.file) {
             const imagePath = req.file.path;
-            dbAuth.query('UPDATE users SET user_image = ? WHERE id = ?', [imagePath, userId], (error, result) => {
+
+            const allowedExtensions = ['.jpg', '.png', 'jpeg'];
+            const fileExtension = path.extname(req.file.originalname).toLowerCase();
+
+            if (!allowedExtensions.includes(fileExtension)) {
+                return res.status(400).send('Invalid file format. Only .jpg, .png, .jpeg files are allowed.');
+            }
+            dbAuth.query('UPDATE users SET userImage = ? WHERE id = ?', [imagePath, userId], (error, result) => {
                 if (error) {
                     console.log(error);
                     res.status(500).send('Internal Server Error');
@@ -165,16 +172,14 @@ const updateUser = (async (req, res) => {
              if (!phoneNumberRegex.test(phoneNumber)) {
                 return res.status(400).send('Invalid phone number. Only numeric characters, spaces, hyphens, and parentheses are allowed.');
                 }
-            dbAuth.query('UPDATE users SET phone_number = ? WHERE id = ?', [phoneNumber, userId], (error, result) => {
+            dbAuth.query('UPDATE users SET phoneNumber = ? WHERE id = ?', [phoneNumber, userId], (error, result) => {
                 if (error) {
                     console.log(error);
                     res.status(500).send('Internal Server Error');
                     return;
                 }
             });
-        }       
-
-
+        }  
         res.send('Profile updated');
     } catch (error) {
         console.log(error);
@@ -193,7 +198,7 @@ const deleteImage = (async (req, res) => {
     }
 
     // untuk remove profile user
-    dbAuth.query('UPDATE users SET user_image = NULL WHERE id = ?', userId, (error, result) => {
+    dbAuth.query('UPDATE users SET userImage = NULL WHERE id = ?', userId, (error, result) => {
         if (error) {
             console.log(error);
             res.status(500).send('Internal Server Error');
@@ -214,7 +219,7 @@ const deletePhone  = (async (req, res) => {
     }
 
     // untuk remove phone_number isinya
-    dbAuth.query('UPDATE users SET phone_number = NULL WHERE id = ?', userId, (error, result) => {
+    dbAuth.query('UPDATE users SET phoneNumber = NULL WHERE id = ?', userId, (error, result) => {
         if (error) {
             console.log(error);
             res.status(500).send('Internal Server Error');

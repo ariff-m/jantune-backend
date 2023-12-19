@@ -4,13 +4,13 @@ const router = express.Router();
 const verifyToken = require ('../middleware/jwt.js');
 const upload = require ('../middleware/multer.js');
 
-router.get('/', authController.getAllUsers);
-router.get('/:userId', authController.getUser);
+router.get('/', verifyToken,authController.getAllUsers);
+router.get('/:userId', verifyToken,authController.getUser);
 router.post('/', authController.userRegister);
 router.post('/login', authController.login);
 router.delete('/:userId', verifyToken, authController.deleteUser);
-router.put('/update-profile/:userId',upload.single('image'),authController.updateUser);
-router.delete('/delete-image/:userId', verifyToken,authController.deleteImage);
+router.put('/update-profile/:userId',verifyToken,upload.single('image'),authController.updateUser);
+router.delete('/delete-image/:userId',authController.deleteImage);
 router.delete('/delete-phone/:userId', verifyToken,authController.deletePhone);
 
 module.exports = router;
