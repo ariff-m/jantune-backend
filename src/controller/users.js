@@ -5,7 +5,7 @@ const getAll = async (req, res) => {
     const [data] = await UsersModel.getAll();
 
     res.json({
-      message: 'get all identification success',
+      message: 'Get all identification success',
       data
     })
 
@@ -23,7 +23,7 @@ const getAllIdentification = async (req, res) => {
     const [data] = await UsersModel.getAllIdentification(userId);
 
     res.json({
-      message: 'get all identification success',
+      message: 'Get all identification by id user success ',
       data
     })
 
@@ -41,7 +41,7 @@ const getIdentification = async (req, res) => {
     const [data] = await UsersModel.getIdentification(userId, id);
 
     res.json({
-      message: 'get identification success',
+      message: 'Get identification by userId and id identification success',
       data: data
     })
 
@@ -59,7 +59,7 @@ const createNewIdentification = async (req, res) => {
 
   if (!body.name || !body.userId) {
     return res.status(400).json({
-      message: 'data tidak lengkap',
+      message: 'Incomplete data',
       data: null,
     })
   }
@@ -67,7 +67,7 @@ const createNewIdentification = async (req, res) => {
   try {
     await UsersModel.createNewIdentification(body);
     res.status(201).json({
-      message: 'create new identification succes',
+      message: 'Create new identification succes',
       data: body
     })
   } catch (error) {
@@ -84,7 +84,7 @@ const updateIdentification = async (req, res) => {
   try {
     await UsersModel.updateIdentification(body, userId, id);
     res.json({
-      message: 'update identification succes',
+      message: 'Update identification succes',
       data: {
         id: id,
         ...body
@@ -103,7 +103,7 @@ const deleteIdentification = async (req, res) => {
   try {
     await UsersModel.deleteIdentification(userId, id);
     res.json({
-      message: 'delete identification success',
+      message: 'Delete identification success',
       data: null
     })
   } catch (error) {

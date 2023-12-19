@@ -53,7 +53,7 @@ const userRegister = (async (req, res) => {
                 name: req.body.name,
                 email: req.body.email,
                 password: hashedPassword,
-                phone_number: req.body.phone_number,
+                phoneNumber: req.body.phoneNumber,
             };
 
             dbAuth.query('INSERT INTO users SET ?', newUser, (error, result) => {
